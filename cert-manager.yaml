@@ -12421,6 +12421,9 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 automountServiceAccountToken: true
+# CHANGED:: Added imagePullSecrets for air-gapped GHCR registry
+imagePullSecrets:
+  - name: ghcr-creds-v2
 metadata:
   name: cert-manager-cainjector
   namespace: cert-manager
@@ -12435,6 +12438,9 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 automountServiceAccountToken: true
+# CHANGED:: Added imagePullSecrets for air-gapped GHCR registry
+imagePullSecrets:
+  - name: ghcr-creds-v2
 metadata:
   name: cert-manager
   namespace: cert-manager
@@ -12449,6 +12455,9 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 automountServiceAccountToken: true
+# CHANGED:: Added imagePullSecrets for air-gapped GHCR registry
+imagePullSecrets:
+  - name: ghcr-creds-v2
 metadata:
   name: cert-manager-webhook
   namespace: cert-manager
