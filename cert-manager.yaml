@@ -13343,6 +13343,9 @@ spec:
         prometheus.io/port: '9402'
     spec:
       serviceAccountName: cert-manager-cainjector
+      # CHANGED:: Added imagePullSecrets directly on pod spec (air-gapped GHCR)
+      imagePullSecrets:
+        - name: ghcr-creds-v2
       enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
@@ -13406,6 +13409,9 @@ spec:
         prometheus.io/port: '9402'
     spec:
       serviceAccountName: cert-manager
+      # CHANGED:: Added imagePullSecrets directly on pod spec (air-gapped GHCR)
+      imagePullSecrets:
+        - name: ghcr-creds-v2
       enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
