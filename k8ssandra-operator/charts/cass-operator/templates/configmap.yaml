@@ -1,0 +1,19 @@
+{{- if .Values.global.imageConfig }}
+kind: ConfigMap
+metadata:
+  name: {{ include "k8ssandra-common.fullname" . }}-image-config
+  labels: {{ include "k8ssandra-common.labels" . | indent 4 }}
+    k8ssandra.io/config: "image"
+  {{- with include "k8ssandra-common.annotations" . }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+apiVersion: v1
+data:
+  image_config.yaml: |
+    apiVersion: config.k8ssandra.io/v1beta2
+    kind: ImageConfig
+    metadata:
+      name: image-config
+{{-  tpl (toYaml .Values.global.imageConfig) . | nindent 4 }}
+{{- end }}

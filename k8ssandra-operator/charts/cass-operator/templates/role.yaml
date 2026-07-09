@@ -1,0 +1,284 @@
+{{- /*
+This is generated file from cass-operator/scripts/release-helm-chart.sh
+*/ -}}
+{{- if .Values.global.clusterScopedResources }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "k8ssandra-common.fullname" . }}
+  labels: {{ include "k8ssandra-common.labels" . | indent 4 }}
+  {{- with include "k8ssandra-common.annotations" . }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+{{- if .Values.global.clusterScoped }}
+rules:
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - storageclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - endpoints
+      - endpoints/restricted
+      - events
+      - persistentvolumeclaims
+      - pods
+      - secrets
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cassandra.datastax.com
+    resources:
+      - cassandradatacenters
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cassandra.datastax.com
+    resources:
+      - cassandradatacenters/finalizers
+    verbs:
+      - delete
+      - update
+  - apiGroups:
+      - cassandra.datastax.com
+    resources:
+      - cassandradatacenters/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - control.k8ssandra.io
+    resources:
+      - cassandratasks
+      - scheduledtasks
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - control.k8ssandra.io
+    resources:
+      - cassandratasks/finalizers
+      - scheduledtasks/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - control.k8ssandra.io
+    resources:
+      - cassandratasks/status
+      - scheduledtasks/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+      - endpointslices/restricted
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - policy
+    resources:
+      - poddisruptionbudgets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+{{- else }}
+rules:
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - storageclasses
+    verbs:
+      - get
+      - list
+      - watch
+{{- end }}
+{{- end }}
+{{- if (not .Values.global.clusterScoped) }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ template "k8ssandra-common.fullname" . }}
+  labels: {{ include "k8ssandra-common.labels" . | indent 4 }}
+  {{- with include "k8ssandra-common.annotations" . }}
+  annotations:
+    {{- . | nindent 4 }}
+  {{- end }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - endpoints
+      - endpoints/restricted
+      - events
+      - persistentvolumeclaims
+      - pods
+      - secrets
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cassandra.datastax.com
+    resources:
+      - cassandradatacenters
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - cassandra.datastax.com
+    resources:
+      - cassandradatacenters/finalizers
+    verbs:
+      - delete
+      - update
+  - apiGroups:
+      - cassandra.datastax.com
+    resources:
+      - cassandradatacenters/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - control.k8ssandra.io
+    resources:
+      - cassandratasks
+      - scheduledtasks
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - control.k8ssandra.io
+    resources:
+      - cassandratasks/finalizers
+      - scheduledtasks/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - control.k8ssandra.io
+    resources:
+      - cassandratasks/status
+      - scheduledtasks/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - discovery.k8s.io
+    resources:
+      - endpointslices
+      - endpointslices/restricted
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - policy
+    resources:
+      - poddisruptionbudgets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+{{- end }}

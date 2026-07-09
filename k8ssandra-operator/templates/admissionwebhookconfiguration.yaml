@@ -1,0 +1,36 @@
+{{- if .Values.global.clusterScopedResources }}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  annotations:
+    cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/{{ include "k8ssandra-common.fullname" . }}-serving-cert
+    {{- with include "k8ssandra-common.annotations" . }}
+      {{- . | nindent 4 }}
+    {{- end }}
+  labels: {{ include "k8ssandra-common.labels" . | indent 4 }}
+  name: {{ include "k8ssandra-common.fullname" . }}-mutating-webhook-configuration
+webhooks:
+- admissionReviewVersions:
+  - v1
+  clientConfig:
+    service:
+      name: {{ include "k8ssandra-common.fullname" . }}-webhook-service
+      namespace: {{ .Release.Namespace }}
+      path: /mutate-v1-pod-secrets-inject
+  failurePolicy: Fail
+  name: mpod.kb.io
+  objectSelector:
+    matchLabels:
+      app.kubernetes.io/created-by: cass-operator
+  rules:
+  - apiGroups:
+    - ""
+    apiVersions:
+    - v1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - pods
+  sideEffects: None
+{{- end }}
