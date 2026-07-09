@@ -1,12 +1,12 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: cassandra
-  labels:
-    pod-security.kubernetes.io/enforce: restricted
-    pod-security.kubernetes.io/audit: restricted
-    pod-security.kubernetes.io/warn: restricted
----
+# apiVersion: v1
+# kind: Namespace
+# metadata:
+#   name: cassandra
+#   labels:
+#     pod-security.kubernetes.io/enforce: privileged
+#     pod-security.kubernetes.io/audit: privileged
+#     pod-security.kubernetes.io/warn: privileged
+# ---
 # =============================================================================
 # ServiceAccount -- Used to attach imagePullSecrets to Cassandra pods
 # =============================================================================
@@ -75,14 +75,17 @@ spec:
     serviceAccount: cassandra
 
     # ---------------------------------------------------------------------------
-    # Server image -- overrides the default Cassandra image.
-    # Use the GHCR Bitnami Cassandra image (air-gapped registry).
+    # Server image -- NOT set here. The cass-operator uses the image configured
+    # via Helm values (global.imageConfig.images.cassandra). This points to the
+    # cass-management-api image which includes Apache Cassandra + Management API.
+    # The Management API (port 8080) is required by cass-operator to manage the
+    # Cassandra process. Standard Cassandra images (e.g. Bitnami) do NOT include
+    # the Management API and will NOT work with cass-operator.
     # ---------------------------------------------------------------------------
-    serverImage: ghcr.io/reserve-bank-innovation-hub/bitnami/cassandra:5.0.5-debian-12-r7
 
     # ---------------------------------------------------------------------------
     # Pod-level security context (fsGroup for volume ownership)
-    # Cassandra runs as UID 999 in the Bitnami image.
+    # Cassandra runs as UID 999 in the cass-management-api image.
     # ---------------------------------------------------------------------------
     podSecurityContext:
       fsGroup: 999
