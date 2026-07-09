@@ -128,7 +128,12 @@ data:
 # Keeper listens on port 9181 (Raft) and 9234 (internal).
 #
 # Anti-affinity: pods are spread across nodes using podAntiAffinity (required)
-# and topologySpreadConstraints (zone awareness, ScheduleAnyway).
+# and operator-native podDistribution. Both work together:
+#   - podDistribution (above) tells the operator to schedule replicas on
+#     different nodes when creating StatefulSets.
+#   - podAntiAffinity (below) tells the Kubernetes scheduler to enforce
+#     this at the pod scheduling level as well.
+# topologySpreadConstraints (zone awareness, ScheduleAnyway).
 # =============================================================================
 apiVersion: "clickhouse-keeper.altinity.com/v1"
 kind: "ClickHouseKeeperInstallation"
@@ -303,10 +308,10 @@ spec:
 #   - Per-replica: clickhouse-repl-0.clickhouse.svc:9000, etc.
 #
 # Anti-affinity:
-#   podDistribution with ClickHouseAntiAffinity ensures no two ClickHouse
-#   replicas share the same node. topologySpreadConstraints ensure AZ spread.
-#   The operator handles this natively via podDistribution -- no manual
-#   podAntiAffinity needed in the pod template.
+#   podDistribution (operator-native) in the pod template ensures no two
+#   ClickHouse replicas share the same node. podAntiAffinity in the pod
+#   template enforces this at the Kubernetes scheduler level as well.
+#   topologySpreadConstraints ensure AZ spread.
 # =============================================================================
 apiVersion: "clickhouse.altinity.com/v1"
 kind: "ClickHouseInstallation"
@@ -349,13 +354,6 @@ spec:
         layout:
           shardsCount: 1
           replicasCount: 2
-        # Pod distribution -- anti-affinity at the cluster level
-        # Ensures replicas of this cluster are not co-located on the same node
-        podDistribution:
-          - type: "ClickHouseAntiAffinity"
-            scope: "Shard"
-          - type: "ClickHouseAntiAffinity"
-            scope: "Replica"
 
     # Settings -- expose Prometheus metrics on port 9363 (built-in)
     settings:
@@ -368,6 +366,13 @@ spec:
   templates:
     podTemplates:
       - name: clickhouse-pod-template
+        # Operator-native pod distribution: ensures no two ClickHouse pods
+        # from the same shard or replica are co-located on the same node.
+        podDistribution:
+          - type: "ClickHouseAntiAffinity"
+            scope: "Shard"
+          - type: "ClickHouseAntiAffinity"
+            scope: "Replica"
         metadata:
           labels:
             app: clickhouse
