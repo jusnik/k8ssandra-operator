@@ -76,7 +76,7 @@ spec:
 
     # ---------------------------------------------------------------------------
     # Server image -- NOT set here. The cass-operator uses the image configured
-    # via Helm values (global.imageConfig.images.cassandra). This points to the
+    # via Helm values (global.imageConfig.types.cassandra). This points to the
     # cass-management-api image which includes Apache Cassandra + Management API.
     # The Management API (port 8080) is required by cass-operator to manage the
     # Cassandra process. Standard Cassandra images (e.g. Bitnami) do NOT include
@@ -109,6 +109,20 @@ spec:
           runAsNonRoot: true
           runAsUser: 999
           runAsGroup: 999
+          seccompProfile:
+            type: RuntimeDefault
+      # server-system-logger is a sidecar injected by cass-operator for log
+      # forwarding. The k8ssandra system-logger image is distroless (no
+      # /etc/passwd). Without an explicit numeric runAsUser, containerd tries
+      # to look up the image's default user in /etc/passwd and fails with
+      # "no users found". Setting runAsUser/runAsGroup as numeric values
+      # bypasses the /etc/passwd lookup.
+      - name: server-system-logger
+        securityContext:
+          runAsUser: 999
+          runAsGroup: 999
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
           seccompProfile:
             type: RuntimeDefault
 
