@@ -148,7 +148,7 @@ spec:
   defaults:
     templates:
       podTemplate: keeper-pod-template
-      dataVolumeClaimTemplate: keeper-data-volume
+      dataVolumeClaimTemplate: data
 
   configuration:
     clusters:
@@ -244,7 +244,7 @@ spec:
               ports:
                 - name: keeper-client
                   containerPort: 9181
-                - name: keeper-interserver
+                - name: kpr-interserver
                   containerPort: 9234
                 - name: keeper-metrics
                   containerPort: 7000
@@ -271,7 +271,7 @@ spec:
               emptyDir: {}
 
     volumeClaimTemplates:
-      - name: keeper-data-volume
+      - name: data
         spec:
           accessModes:
             - ReadWriteOnce
@@ -326,8 +326,8 @@ spec:
   defaults:
     templates:
       podTemplate: clickhouse-pod-template
-      dataVolumeClaimTemplate: data-volume
-      logVolumeClaimTemplate: log-volume
+      dataVolumeClaimTemplate: data
+      logVolumeClaimTemplate: logs
     replicasUseFQDN: "yes"
 
   configuration:
@@ -345,7 +345,14 @@ spec:
     # CHANGED:: User is "clickhouse" (not "default"). The password is set
     # CHANGED:: via the Secret above (clickhouse-password key).
     users:
-      clickhouse/password: ""
+      # Password is read from the Secret by the operator and rendered
+      # in the XML config with from_env attribute. The operator handles
+      # this natively -- no CLICKHOUSE_PASSWORD env var needed.
+      clickhouse/password:
+        valueFrom:
+          secretKeyRef:
+            name: clickhouse
+            key: clickhouse-password
       clickhouse/networks/ip: "::/0"
       clickhouse/access_management: "1"
 
@@ -550,7 +557,7 @@ spec:
               emptyDir: {}
 
     volumeClaimTemplates:
-      - name: data-volume
+      - name: data
         spec:
           accessModes:
             - ReadWriteOnce
@@ -562,7 +569,7 @@ spec:
               # overhead = ~1,413 GB. dpip-sc supports volume expansion.
               storage: 1400Gi
           storageClassName: dpip-sc
-      - name: log-volume
+      - name: logs
         spec:
           accessModes:
             - ReadWriteOnce
