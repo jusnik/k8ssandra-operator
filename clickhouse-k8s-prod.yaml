@@ -266,6 +266,9 @@ spec:
                 - name: empty-dir
                   mountPath: /etc/clickhouse-keeper
                   subPath: conf-dir
+                - name: empty-dir
+                  mountPath: /var/log/clickhouse-keeper
+                  subPath: log-dir
           volumes:
             - name: empty-dir
               emptyDir: {}
